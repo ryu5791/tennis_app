@@ -6,6 +6,91 @@ tennis_app
 getElementById
 
 
+①tennis_appでGITに登録
+	tennis_app ┬ tennis_app
+			   ├ score			 ┬ views_view.py
+			   │				 └ views_input.py
 
 
+
+
+html
+	閲覧モード
+		view.html
+			ranking
+			parsonal
+			daily
+			etc
+	
+	入力モード
+		input.html
+			input
+			change
+			import
+			export
+
+	base.html
+
+
+
+①ボタン左端表示
+②権限で表示ON/OFF
+
+●score/urls.py
+urlpatterns = [
+	path("", views_view.ranking, name="ranking"),
+	path("daily", views_view.daily, name="daily"),
+]
+
+
+●view_ranking.html
+
+{% extends 'view_base.html' %}
+
+
+
+●view_base.html
+
+% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Let's</title>
+ 
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="{% static 'score/css/bootstrap.css' %}">
+ 
+</head>
+<body>
+ 
+ 
+  <script type="text/javascript" src="{% static 'score/js/jQuery-3.4.1.js' %}"></script>
+  <script type="text/javascript" src="{% static 'score/js/bootstrap.bundle.js' %}"></script>
+
+	<!-- タブ -->
+	<ul class="nav nav-tabs nav-fill">
+	  <li class="nav-item">
+	  	{% block tab_ranking %}
+	    <a href="{% url 'ranking' %}" class="nav-link" data-toggle="tab">ranking</a>
+	  	{% endblock %}
+	  </li>
+	  <li class="nav-item">
+	  	{% block tab_parsonal %}
+	    <a href="{% url 'daily' %}" class="nav-link" data-toggle="tab">daily</a>
+	  	{% endblock %}
+	  </li>
+	  <li class="nav-item">
+	  	{% block tab_daily %}
+	    <a href="#photo3" class="nav-link" data-toggle="tab">parsonal</a>
+	  	{% endblock %}
+	  </li>
+	  <li class="nav-item">
+	  	{% block tab_etc %}
+	    <a href="#photo4" class="nav-link" data-toggle="tab">etc</a>
+	  	{% endblock %}
+	  </li>
+	</ul>
+	
+	
 

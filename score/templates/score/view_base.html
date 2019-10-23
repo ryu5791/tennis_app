@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Let's</title>
+ 
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="{% static 'score/css/bootstrap.css' %}">
+ 
+</head>
+<body>
+ 
+ 
+  <script type="text/javascript" src="{% static 'score/js/jQuery-3.4.1.js' %}"></script>
+  <script type="text/javascript" src="{% static 'score/js/bootstrap.bundle.js' %}"></script>
+
+  <!-- タブ -->
+	<ul class="nav nav-tabs nav-fill">
+	  <li class="nav-item">
+	  	{% block tab_ranking %}
+	    <a href="{% url 'ranking' %}" class="nav-link" >ranking</a>
+	  	{% endblock %}
+	  </li>
+	  <li class="nav-item">
+	  	{% block tab_daily %}
+	    <a href="{% url 'daily' %}" class="nav-link" >daily</a>
+	  	{% endblock %}
+	  </li>
+	  <li class="nav-item">
+	  	{% block tab_parsonal %}
+	    <a href="#photo3" class="nav-link" >parsonal</a>
+	  	{% endblock %}
+	  </li>
+	  <li class="nav-item">
+	  	{% block tab_etc %}
+	    <a href="#photo4" class="nav-link" >etc</a>
+	  	{% endblock %}
+	  </li>
+	</ul>
+
+  <!-- タイトル -->
+	<h2>
+		<div class="float-left">
+			ボタンの練習
+		</div>
+
+		{% if authInput == True %}
+		<div class="float-right">
+  		<button type="submit" class="btn btn-success">input</button>
+		</div>
+		{% endif %}
+	</h2>
+	
+	<br>
+	{{authInput}}
+
+  <!-- 各種データ -->
+	{% block main %}
+		default
+	{% endblock %}
+
+<!--
+  <div class="tab-content">
+    <div id="photo1" class="tab-pane active">
+      テスト１
+    </div>
+    <div id="photo2" class="tab-pane">
+      テスト２
+    </div>
+    <div id="photo3" class="tab-pane">
+      テスト３
+    </div>
+    <div id="photo4" class="tab-pane">
+      テスト４
+    </div>
+  </div>
+
+
+	<a href="#" class="btn btn-success">ボタン</a>
+	<a href="#" class="btn btn-warning">ボタン</a>
+-->
+
+</body>
+</html>

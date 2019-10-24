@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Input</title>
+ 
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="{% static 'score/css/bootstrap.css' %}">
+ 
+</head>
+<body>
+ 
+ 
+  <script type="text/javascript" src="{% static 'score/js/jQuery-3.4.1.js' %}"></script>
+  <script type="text/javascript" src="{% static 'score/js/bootstrap.bundle.js' %}"></script>
+
+  <!-- タブ -->
+	<ul class="nav nav-tabs nav-fill">
+	  <li class="nav-item">
+	  	{% block tab_input %}
+	    <a href="{% url 'inputScr' %}" class="nav-link" >input</a>
+	  	{% endblock %}
+	  </li>
+	  <li class="nav-item">
+	  	{% block tab_change %}
+	    <a href="{% url 'importScr' %}" class="nav-link" >change</a>
+	  	{% endblock %}
+	  </li>
+	  <li class="nav-item">
+	  	{% block tab_import %}
+	    <a href="{% url 'importScr' %}" class="nav-link" >import</a>
+	  	{% endblock %}
+	  </li>
+	  <li class="nav-item">
+	  	{% block tab_export %}
+	    <a href="{% url 'importScr' %}" class="nav-link" >export</a>
+	  	{% endblock %}
+	  </li>
+	</ul>
+
+  <!-- タイトル -->
+	<h2>
+		<div class="float-left">
+			{% block title %}{% endblock %}
+		</div>
+
+		<div class="float-right">
+			<a href="{% url 'ranking' %}" class="btn btn-success" role="button" >view</a>
+		</div>
+	</h2>
+	
+	<br>
+	{{authInput}}
+
+  <!-- 各種データ -->
+	{% if authInput == True %}
+	{% block main %}
+		default
+	{% endblock %}
+	{% endif %}
+
+	<!-- スクリプト -->
+  {% block extrajs %}{% endblock %}
+</body>
+</html>

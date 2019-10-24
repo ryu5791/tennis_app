@@ -17,17 +17,17 @@ getElementById
 html
 	閲覧モード
 		view.html
-			ranking
-			parsonal
-			daily
-			etc
+			view_ranking
+			view_parsonal
+			view_daily
+			view_etc
 	
 	入力モード
 		input.html
-			input
-			change
-			import
-			export
+			input_input
+			input_change
+			input_import
+			input_export
 
 	base.html
 

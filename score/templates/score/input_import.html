@@ -1,0 +1,26 @@
+{% extends 'score/input_base.html' %}
+
+	{% block tab_import %}
+	<a href="" class="nav-link active" data-toggle="tab">import</a>
+	{% endblock %}
+
+	{% block main %}
+<form action="{% url 'importScr' %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="file" class="dropify" data-default-file="ファイルを選択してください" name="csv">
+  <br>
+  <br>
+  <button type="submit" class="btn btn-primary">アップロード</button>
+</form>
+	{% endblock %}
+
+{% block extrajs %}
+<script>
+//$(function(){
+//  $('.dropify').dropify();
+//})
+</script>
+
+
+{% endblock %}
+

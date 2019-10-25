@@ -47,6 +47,7 @@ def importScr(request):
 
 #					logging.debug("importScr json_score" + str(json_score) )
 
+					roopCount=0
 
 					for scr in json_score["results"]:
 #						defaults_tblScore = dict(
@@ -62,30 +63,34 @@ def importScr(request):
 
 #						)
 
-						logging.debug("importScr scr 0:" + str(scr) )
-						logging.debug("importScr date 0:" + str(scr["date"].replace('/', '-')) )
-						logging.debug("importScr gameNo 0:" + str(scr["gameNo"]) )
-						logging.debug("importScr ID 0:" + str(scr["ID"]) )
+#						logging.debug("importScr scr 0:" + str(scr) )
+#						logging.debug("importScr date 0:" + str(scr["date"].replace('/', '-')) )
+#						logging.debug("importScr gameNo 0:" + str(scr["gameNo"]) )
+#						logging.debug("importScr ID 0:" + str(scr["ID"]) )
 					
 					
 #						tblScore, created = TblScore.objects.get_or_create(defaults__exact='bar', defaults={'defaults': 'baz'})
 #						tblScore, created = TblScore.objects.get_or_create()
-#						tblScore, created = TblScore.objects.get_or_create(date=str(scr["date"].replace('/', '-')) \
-#															,  gameNo=str(scr["gameNo"]) \
-#															,  playerID=int(scr["ID"]))
-						logging.debug("importScr scr 1:" + str(scr) )
+						tblScore, created = TblScore.objects.get_or_create(date=str(scr["date"].replace('/', '-')) \
+															,  gameNo=str(scr["gameNo"]) \
+															,  playerID=int(scr["ID"]))
+						logging.debug("importScr created:" + str(created) )
 						tblScore.date = scr["date"].replace('/', '-')
 						tblScore.gameNo		= int(scr["gameNo"])
 						tblScore.gamePt     = int(scr["gamePt"])
 						tblScore.playerID   = int(scr["ID"])
 						tblScore.pairID     = int(scr["pairID"])
+#						logging.debug("importScr scr 5:")
 						tblScore.row        = int(scr["row"])
 						tblScore.serve1st   = bool(scr["serve1st"])
 						tblScore.serve2nd   = bool(scr["serve2nd"])
 						tblScore.serveTurn  = int(scr["serveTurn"]-1)
-						i += 1
+#						logging.debug("importScr scr 10:")
 						tblScore.save()
-					logging.debug(i)
+#						logging.debug("importScr scr 20:")
+						roopCount = roopCount + 1
+						logging.debug("importScr roopCount:" + str(roopCount) )
+
 					msg_result = "score読み込み完了"
 					
 				elif "member"  in request.FILES["json"].name:

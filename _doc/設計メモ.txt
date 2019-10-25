@@ -1,28 +1,29 @@
-tennis_app
-	score
+â—åŸºæœ¬ã‚³ãƒãƒ³ãƒ‰
 
+python manage.py makemigrations score
+python manage.py migrate
 
-
+--------------------------------------------
 getElementById
 
 
-‡@tennis_app‚ÅGIT‚É“o˜^
-	tennis_app „¦ tennis_app
-			   „¥ score			 „¦ views_view.py
-			   „ 				 „¤ views_input.py
+â‘ tennis_appã§GITã«ç™»éŒ²
+	tennis_app â”¬ tennis_app
+			   â”œ score			 â”¬ views_view.py
+			   â”‚				 â”” views_input.py
 
 
 
 
 html
-	‰{——ƒ‚[ƒh
+	é–²è¦§ãƒ¢ãƒ¼ãƒ‰
 		view.html
 			view_ranking
 			view_parsonal
 			view_daily
 			view_etc
 	
-	“ü—Íƒ‚[ƒh
+	å…¥åŠ›ãƒ¢ãƒ¼ãƒ‰
 		input.html
 			input_input
 			input_change
@@ -33,23 +34,23 @@ html
 
 
 
-‡@ƒ{ƒ^ƒ“¶’[•\¦
-‡AŒ ŒÀ‚Å•\¦ON/OFF
+â‘ ãƒœã‚¿ãƒ³å·¦ç«¯è¡¨ç¤º
+â‘¡æ¨©é™ã§è¡¨ç¤ºON/OFF
 
-œscore/urls.py
+â—score/urls.py
 urlpatterns = [
 	path("", views_view.ranking, name="ranking"),
 	path("daily", views_view.daily, name="daily"),
 ]
 
 
-œview_ranking.html
+â—view_ranking.html
 
 {% extends 'view_base.html' %}
 
 
 
-œview_base.html
+â—view_base.html
 
 % load static %}
 <!DOCTYPE html>
@@ -68,7 +69,7 @@ urlpatterns = [
   <script type="text/javascript" src="{% static 'score/js/jQuery-3.4.1.js' %}"></script>
   <script type="text/javascript" src="{% static 'score/js/bootstrap.bundle.js' %}"></script>
 
-	<!-- ƒ^ƒu -->
+	<!-- ã‚¿ãƒ– -->
 	<ul class="nav nav-tabs nav-fill">
 	  <li class="nav-item">
 	  	{% block tab_ranking %}

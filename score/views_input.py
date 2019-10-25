@@ -2,8 +2,12 @@ from django.shortcuts import render
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from .models import TblScore, TblMember
 
 import logging
+
+import json
+import io
 
 @login_required(login_url='/admin/login/')
 def inputScr(request):
@@ -18,6 +22,92 @@ def inputScr(request):
 
 @login_required(login_url='/admin/login/')
 def importScr(request):
-    params = {'authInput': request.user.has_perm("score.add_tblscore"),}
-    return render(request, "score/input_import.html", params)
+
+	logging.debug("importScr request.method:" + str(request.method))
+	
+	msg_result = "test"
+
+	try:
+
+		#ファイル読み込み
+		if request.method == "POST":
+#			logging.debug("importScr request.FILES:" + str(request.FILES))
+#			logging.debug("importScr name:" + str(request.FILES["json"].name))
+
+			# json
+			if "json" in request.FILES["json"].name:
+#				logging.debug("importScr json TRUE")
+				if "Score"  in request.FILES["json"].name:
+					logging.debug("importScr Score TRUE")
+
+					# スコア → データベース
+#					temp = open('Score2019_1.json',encoding="utf-8_sig")
+					temp = io.TextIOWrapper(request.FILES["json"].file ,encoding="utf-8_sig")
+					json_score = json.load(temp)
+
+#					logging.debug("importScr json_score" + str(json_score) )
+
+
+					for scr in json_score["results"]:
+#						defaults_tblScore = dict(
+#							date=scr["date"].replace('/', '-')	,
+#							gameNo		= int(scr["gameNo"])    ,
+#							gamePt     = int(scr["gamePt"])     ,
+#							playerID   = int(scr["ID"])         ,
+#							pairID     = int(scr["pairID"])     ,
+#							row        = int(scr["row"])        ,
+#							serve1st   = bool(scr["serve1st"])  ,
+#							serve2nd   = bool(scr["serve2nd"])  ,
+#							serveTurn  = int(scr["serveTurn"]-1),
+
+#						)
+
+						logging.debug("importScr scr 0:" + str(scr) )
+						logging.debug("importScr date 0:" + str(scr["date"].replace('/', '-')) )
+						logging.debug("importScr gameNo 0:" + str(scr["gameNo"]) )
+						logging.debug("importScr ID 0:" + str(scr["ID"]) )
+					
+					
+#						tblScore, created = TblScore.objects.get_or_create(defaults__exact='bar', defaults={'defaults': 'baz'})
+#						tblScore, created = TblScore.objects.get_or_create()
+#						tblScore, created = TblScore.objects.get_or_create(date=str(scr["date"].replace('/', '-')) \
+#															,  gameNo=str(scr["gameNo"]) \
+#															,  playerID=int(scr["ID"]))
+						logging.debug("importScr scr 1:" + str(scr) )
+						tblScore.date = scr["date"].replace('/', '-')
+						tblScore.gameNo		= int(scr["gameNo"])
+						tblScore.gamePt     = int(scr["gamePt"])
+						tblScore.playerID   = int(scr["ID"])
+						tblScore.pairID     = int(scr["pairID"])
+						tblScore.row        = int(scr["row"])
+						tblScore.serve1st   = bool(scr["serve1st"])
+						tblScore.serve2nd   = bool(scr["serve2nd"])
+						tblScore.serveTurn  = int(scr["serveTurn"]-1)
+						i += 1
+						tblScore.save()
+					logging.debug(i)
+					msg_result = "score読み込み完了"
+					
+				elif "member"  in request.FILES["json"].name:
+					temp = io.TextIOWrapper(request.FILES["json"].file ,encoding="utf-8_sig")
+					json_member = json.load(temp)
+
+					# メンバー → データベース登録
+					for mem in json_member["results"]:
+						tblMember, created = TblMember.objects.get_or_create(playerID=int(mem["ID"]))
+						tblMember.playerID		= int(mem["ID"])
+						tblMember.name          = mem["name"]
+						tblMember.dispName      = mem["dispName"]
+						tblMember.inputName1    = mem["nickname1"]
+						tblMember.inputName2    = mem["dispName"]
+						tblMember.save()
+
+					msg_result = "member読み込み完了"
+	except:
+		msg_result = "読み込み失敗"
+
+	
+	params ={	'authInput': request.user.has_perm("score.add_tblscore"),
+				'throw_result' : msg_result}
+	return render(request, "score/input_import.html", params)
 

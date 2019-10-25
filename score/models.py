@@ -34,7 +34,8 @@ class TblMember(models.Model):
 	inputName2  = models.CharField(default="", blank=True, max_length=20)
 
 class TblScore(models.Model):
-	date        = models.ForeignKey(TblDaily, on_delete=models.PROTECT)
+#	date        = models.ForeignKey(TblDaily, on_delete=models.PROTECT)
+	date        = models.DateField(null=True)
 	gameNo      = models.PositiveIntegerField(null=True)
 	gamePt      = models.PositiveIntegerField(default=0, null=True, blank=True)
 	playerID    = models.ForeignKey(TblMember, on_delete=models.PROTECT, related_name = "player_Member")

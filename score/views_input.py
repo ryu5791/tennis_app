@@ -20,6 +20,18 @@ def inputScr(request):
     params = {'authInput': request.user.has_perm("score.add_tblscore"),}
     return render(request, "score/input_input.html", params)
 
+"""Summary line.
+
+ファイルインポート
+	とりあえずjsonのみ対応。（いずれはcsvも）
+
+Args:
+    request
+
+Returns:
+	render
+
+"""
 @login_required(login_url='/admin/login/')
 def importScr(request):
 
@@ -31,71 +43,44 @@ def importScr(request):
 
 		#ファイル読み込み
 		if request.method == "POST":
-#			logging.debug("importScr request.FILES:" + str(request.FILES))
-#			logging.debug("importScr name:" + str(request.FILES["json"].name))
-
 			# json
 			if "json" in request.FILES["json"].name:
-#				logging.debug("importScr json TRUE")
 				if "Score"  in request.FILES["json"].name:
 					logging.debug("importScr Score TRUE")
 
 					# スコア → データベース
-#					temp = open('Score2019_1.json',encoding="utf-8_sig")
 					temp = io.TextIOWrapper(request.FILES["json"].file ,encoding="utf-8_sig")
 					json_score = json.load(temp)
 
-#					logging.debug("importScr json_score" + str(json_score) )
-
-					roopCount=0
+					roopCount=0					#デバッグ用
 
 					for scr in json_score["results"]:
-#						defaults_tblScore = dict(
-#							date=scr["date"].replace('/', '-')	,
-#							gameNo		= int(scr["gameNo"])    ,
-#							gamePt     = int(scr["gamePt"])     ,
-#							playerID   = int(scr["ID"])         ,
-#							pairID     = int(scr["pairID"])     ,
-#							row        = int(scr["row"])        ,
-#							serve1st   = bool(scr["serve1st"])  ,
-#							serve2nd   = bool(scr["serve2nd"])  ,
-#							serveTurn  = int(scr["serveTurn"]-1),
-
-#						)
-
-#						logging.debug("importScr scr 0:" + str(scr) )
-#						logging.debug("importScr date 0:" + str(scr["date"].replace('/', '-')) )
-#						logging.debug("importScr gameNo 0:" + str(scr["gameNo"]) )
-#						logging.debug("importScr ID 0:" + str(scr["ID"]) )
-					
-					
-#						tblScore, created = TblScore.objects.get_or_create(defaults__exact='bar', defaults={'defaults': 'baz'})
-#						tblScore, created = TblScore.objects.get_or_create()
 						tblScore, created = TblScore.objects.get_or_create(date=str(scr["date"].replace('/', '-')) \
 															,  gameNo=str(scr["gameNo"]) \
 															,  playerID=int(scr["ID"]))
-						logging.debug("importScr created:" + str(created) )
+
 						tblScore.date = scr["date"].replace('/', '-')
 						tblScore.gameNo		= int(scr["gameNo"])
 						tblScore.gamePt     = int(scr["gamePt"])
 						tblScore.playerID   = int(scr["ID"])
 						tblScore.pairID     = int(scr["pairID"])
-#						logging.debug("importScr scr 5:")
 						tblScore.row        = int(scr["row"])
 						tblScore.serve1st   = bool(scr["serve1st"])
 						tblScore.serve2nd   = bool(scr["serve2nd"])
 						tblScore.serveTurn  = int(scr["serveTurn"]-1)
-#						logging.debug("importScr scr 10:")
+						# 保存！
 						tblScore.save()
-#						logging.debug("importScr scr 20:")
-						roopCount = roopCount + 1
-						logging.debug("importScr roopCount:" + str(roopCount) )
+
+						roopCount = roopCount + 1												#デバッグ用
+						logging.debug("importScr roopCount:" + str(roopCount) + str(created))	#デバッグ用
 
 					msg_result = "score読み込み完了"
 					
 				elif "member"  in request.FILES["json"].name:
 					temp = io.TextIOWrapper(request.FILES["json"].file ,encoding="utf-8_sig")
 					json_member = json.load(temp)
+
+					roopCount=0					#デバッグ用
 
 					# メンバー → データベース登録
 					for mem in json_member["results"]:
@@ -105,7 +90,11 @@ def importScr(request):
 						tblMember.dispName      = mem["dispName"]
 						tblMember.inputName1    = mem["nickname1"]
 						tblMember.inputName2    = mem["dispName"]
+						# 保存！
 						tblMember.save()
+
+						roopCount = roopCount + 1									#デバッグ用
+						logging.debug("importScr roopCount:" + str(roopCount) )		#デバッグ用
 
 					msg_result = "member読み込み完了"
 	except:

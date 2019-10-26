@@ -4,6 +4,12 @@ python manage.py makemigrations score
 python manage.py migrate
 
 --------------------------------------------
+●やること
+
+・pythonanywhere上でコミットできるか
+
+
+--------------------------------------------
 getElementById
 
 
@@ -33,9 +39,6 @@ html
 	base.html
 
 
-
-①ボタン左端表示
-②権限で表示ON/OFF
 
 ●score/urls.py
 urlpatterns = [

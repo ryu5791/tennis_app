@@ -34,17 +34,16 @@ class TblMember(models.Model):
 	inputName2  = models.CharField(default="", blank=True, max_length=20)
 
 class TblScore(models.Model):
-#	date        = models.ForeignKey(TblDaily, on_delete=models.PROTECT)
 	date        = models.DateField(null=True)
 	gameNo      = models.PositiveIntegerField(null=True)
 	gamePt      = models.PositiveIntegerField(default=0, null=True, blank=True)
-#	playerID    = models.ForeignKey(TblMember, on_delete=models.PROTECT, related_name = "player_Member")
-#	pairID      = models.ForeignKey(TblMember, on_delete=models.PROTECT, related_name = "pair_Member")
 	playerID    = models.PositiveIntegerField(null=True)
 	pairID      = models.PositiveIntegerField(null=True)
 	row         = models.PositiveIntegerField(default=0, null=True)
-	serve1st    = models.BooleanField(default=False, null=True)
-	serve2nd    = models.NullBooleanField(null=True)
+#	serve1st    = models.BooleanField(default=False, null=True)
+#	serve2nd    = models.NullBooleanField(null=True)
+	serve1st    = models.PositiveIntegerField(null=True)
+	serve2nd    = models.PositiveIntegerField(null=True)
 	serveTurn   = models.PositiveIntegerField(default=0, null=True)
 	temp        = models.BooleanField(default=False, null=True)
 

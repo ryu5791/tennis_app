@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import TblScore, TblMember
 
-import logging		# logging.debug("" + str())
+from logging import getLogger		#getLogger("" + str())
 
 import json
 import io
@@ -13,11 +13,11 @@ import csv
 @login_required(login_url='/admin/login/')
 def inputScr(request):
     test = User.objects.filter(username=request.user)
-    logging.debug("index user:" + str(request.user))
-    logging.debug("index is_super:" + str(request.user.is_superuser))
-    logging.debug("index test:" + str(test))
-    logging.debug("index has_perm:" + str(request.user.has_perm("score.add_tblscore") ))
-#   logging.debug("index has_perm:" + str(request.user.has_perm("auth.add_user") ))
+    getLogger("index user:" + str(request.user))
+    getLogger("index is_super:" + str(request.user.is_superuser))
+    getLogger("index test:" + str(test))
+    getLogger("index has_perm:" + str(request.user.has_perm("score.add_tblscore") ))
+#   getLogger("index has_perm:" + str(request.user.has_perm("auth.add_user") ))
     params = {'authInput': request.user.has_perm("score.add_tblscore"),}
     return render(request, "score/input_input.html", params)
 
@@ -50,7 +50,7 @@ Returns:
 @login_required(login_url='/admin/login/')
 def importScr(request):
 
-	logging.debug("importScr request.method:" + str(request.method))
+	getLogger("importScr request.method:" + str(request.method))
 	
 	msg_result = "test"
 
@@ -61,7 +61,7 @@ def importScr(request):
 			# json
 			if "json" in request.FILES["json"].name:
 				if "Score"  in request.FILES["json"].name:
-					logging.debug("importScr Score TRUE")
+					getLogger("importScr Score TRUE")
 
 					# スコア → データベース
 					temp = io.TextIOWrapper(request.FILES["json"].file ,encoding="utf-8_sig")
@@ -87,7 +87,7 @@ def importScr(request):
 						tblScore.save()
 
 						roopCount = roopCount + 1												#デバッグ用
-						logging.debug("importScr roopCount:" + str(roopCount) + str(created))	#デバッグ用
+						getLogger("importScr roopCount:" + str(roopCount) + str(created))	#デバッグ用
 
 					msg_result = "score読み込み完了"
 					
@@ -109,7 +109,7 @@ def importScr(request):
 						tblMember.save()
 
 						roopCount = roopCount + 1									#デバッグ用
-						logging.debug("importScr roopCount:" + str(roopCount) )		#デバッグ用
+						getLogger("importScr roopCount:" + str(roopCount) )		#デバッグ用
 
 					msg_result = "member読み込み完了"
 	except:

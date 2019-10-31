@@ -45,9 +45,9 @@
 -->
 	  <!-- 3行目 -->
 		<tr>
-			<td onclick="Click_Name(this, 'name2')" name="name2"></td>
+			<td onclick="Click_Name(this, 'name1')" name="name1"></td>
 			<td onclick="Click_ID(this)"></td>
-			<td onclick="chg_serve_turn(ROW_MEM_1st)">1</td>
+			<td onclick="chg_serve_turn(ROW_MEM_1st)">3</td>
 		  {% for loop_id in ""|rjust:"7" %}
 		  <td onclick="Click_ServeResult(this)">
 			{% endfor %}
@@ -57,28 +57,47 @@
 		  <td colspan="1" onclick="Click_Name(this)"></td><td colspan="1" onclick="Click_ID(this)"></td><td onclick="chg_serve_turn(ROW_MEM_2nd)">3</td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td>
 		  </tr>
 -->
-		  <tr>
-		  <td colspan="2">ゲーム {{cnt}}</td>
-		    {% for gamecnt in form20 %}
-		      <td onclick="Click_ServeResult(this)">
-		      {{gamecnt.0}}
-		      </td>
-		    {% endfor %}
-		  </tr>
-		  <tr>
-		  <td colspan="6">ゲーム {{cnt}}</td>
-		    {% for gamecnt in form20 %}
-		      <td onclick="Click_ServeResult(this)">
-		      {{gamecnt.1}}
-		      </td>
-		    {% endfor %}
-		  </tr>
-		  <tr>
-		  <td colspan="3" onclick="Click_Name(this)"></td><td colspan="2" onclick="Click_ID(this)"></td><td onclick="chg_serve_turn(ROW_MEM_3rd)">2</td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td>
-		  </tr>
-		  <tr>
-		  <td colspan="3" onclick="Click_Name(this)"></td><td colspan="2" onclick="Click_ID(this)"></td><td onclick="chg_serve_turn(ROW_MEM_4th)">4</td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td><td onclick="Click_ServeResult(this)"></td>
+	  <!-- 4行目 -->
+	  <tr>
+	  <td colspan="3">ゲーム {{cnt}}</td>
+		  {% for loop_id in ""|rjust:"7" %}
+	      <td onclick="Click_ServeResult(this)">
+	      {{gamecnt.0}}
+	      </td>
+	    {% endfor %}
 	  </tr>
+
+	  <!-- 5行目 -->
+	  <tr>
+	  <td colspan="3">ゲーム {{cnt}}</td>
+		  {% for loop_id in ""|rjust:"7" %}
+	      <td onclick="Click_ServeResult(this)">
+	      {{gamecnt.1}}
+	      </td>
+	    {% endfor %}
+			<td rowspan="3"></td>
+	  </tr>
+
+	  <!-- 6行目 -->
+		<tr>
+			<td onclick="Click_Name(this, 'name1')" name="name1"></td>
+			<td onclick="Click_ID(this)"></td>
+			<td onclick="chg_serve_turn(ROW_MEM_1st)">2</td>
+		  {% for loop_id in ""|rjust:"7" %}
+		  <td onclick="Click_ServeResult(this)">
+			{% endfor %}
+		</tr>
+
+	  <!-- 7行目 -->
+		<tr>
+			<td onclick="Click_Name(this, 'name1')" name="name1"></td>
+			<td onclick="Click_ID(this)"></td>
+			<td onclick="chg_serve_turn(ROW_MEM_1st)">4</td>
+		  {% for loop_id in ""|rjust:"7" %}
+		  <td onclick="Click_ServeResult(this)">
+			{% endfor %}
+		</tr>
+
 	  </tbody>
 	  </table>
 	</form>
@@ -117,29 +136,90 @@ function dbg(obj, str) {
 }
 
 
+/***********************************************************
+ -----------------------------------------------------------
+ * @brief   
+ * @param   
+ * @return  
+ * @note    
+ -----------------------------------------------------------
+ **********************************************************/
 function Click_Name(Obj, arg_name){
-	var row = Obj.parentNode.rowIndex;
-	var col = Obj.cellIndex;
+	var rowIndex = func_convert_row_into_index(Obj.parentNode.rowIndex);
+//	var col = Obj.cellIndex;
 	var strName = Obj.textContent;
 	var send_form = document.getElementsByName(arg_name);
 
-dbg(arg_name, "arg_name:");
+dbg(rowIndex, "rowIndex:");
+
+//dbg(arg_name, "arg_name:");
 //dbg(Obj.parentNode.rowIndex, "Obj.parentNode.rowIndex:");
 //dbg(Obj.cellIndex, "Obj.cellIndex:");
-dbg(row, "row:");
-dbg(col, "col:");
+//dbg(row, "row:");
+//dbg(col, "col:");
 dbg(Obj, "Obj:");
 
-dbg(send_form[0], "send_form:");
+	send_form[rowIndex].method = "POST";
+dbg(send_form[rowIndex].name, "name:");
+dbg(send_form[rowIndex].method, "method:");
+	send_form[rowIndex].style.visibility = "hidden";
+	document.body.appendChild(send_form[rowIndex]); //画面内に追加
 
-dbg(send_form[0].parentNode.rowIndex, "parentNode.rowIndex");
-dbg(send_form[0].cellIndex, "cellIndex");
+	var fld1 = document.createElement("input");
+	fld1.name = "index";
+	fld1.type = "hidden"; //省略可 or hidden
+	fld1.value = rowIndex;
+	send_form[rowIndex].appendChild(fld1);
 
-	strName = prompt("番目の名前入力", strName);
+
+//dbg(send_form[0], "send_form:");
+//
+//dbg(send_form[0].parentNode.rowIndex, "parentNode.rowIndex");
+//dbg(send_form[0].cellIndex, "cellIndex");
+
+	strName = prompt((rowIndex+1) + "番目の名前入力", strName);
 
 	Obj.textContent = strName;
 
+
+
+
 }
+
+/***********************************************************
+ -----------------------------------------------------------
+ * @brief   
+ * @param   
+ * @return  
+ * @note    
+ -----------------------------------------------------------
+ **********************************************************/
+function func_convert_row_into_index(row)
+{
+	var rowIndex=0;
+	
+	switch(row){
+	case 1:
+		rowIndex = 0;
+		break;
+	case 2:
+		rowIndex = 1;
+		break;
+	case 5:
+		rowIndex = 2;
+		break;
+	case 6:
+		rowIndex = 3;
+		break;
+	default:
+		alert("func_convert_row_into_index has arg error");
+		break;
+	}
+	
+	return(rowIndex);
+}
+
+
 
 
 

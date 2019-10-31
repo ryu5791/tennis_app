@@ -110,18 +110,22 @@ html
 
 html	→	view	タップ情報
 	name
-		行
+		index	0~3
 		名前
 	ID
-		行
+		index
 		ID番号
 	サーブ順
-		行
+		index
 	ゲーム過程
-		行
+		index
 		列
 	
 	サーブ順変更
+
+	行をindexに変換する関数
+		func_convert_row_into_index
+
 
 views	→	html	表示情報
 	name[4]	.str

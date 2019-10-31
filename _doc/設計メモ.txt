@@ -108,15 +108,32 @@ html
 
 
 
-html
-	item
-		
+html	→	view	タップ情報
+	name
+		行
+		名前
+	ID
+		行
+		ID番号
+	サーブ順
+		行
+	ゲーム過程
+		行
+		列
+	
+	サーブ順変更
 
-↓
-views
+views	→	html	表示情報
+	name[4]	.str
+			.mode
 
+	id[4]	.str
+			.mode
 
+	serveTurn[4]	.str
+					.mode
 
-
+	gameProcess[2][7]	.str
+						.mode
 
 

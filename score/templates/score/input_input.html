@@ -103,11 +103,19 @@ function dbg(obj, str) {
         properties = str + "\n";
     }
     
-    for (var prop in obj){
-        properties += prop + "=" + obj[prop] + "\n";
+    if(typeof(obj) == "object" ){
+	    for (var prop in obj){
+	        properties += prop + "=" + obj[prop] + "\n";
+	    }
     }
+    else
+    {
+	    properties += obj;
+    }
+    
     alert(properties);
 }
+
 
 function Click_Name(Obj, arg_name){
 	var row = Obj.parentNode.rowIndex;
@@ -116,11 +124,16 @@ function Click_Name(Obj, arg_name){
 	var send_form = document.getElementsByName(arg_name);
 
 dbg(arg_name, "arg_name:");
+//dbg(Obj.parentNode.rowIndex, "Obj.parentNode.rowIndex:");
+//dbg(Obj.cellIndex, "Obj.cellIndex:");
 dbg(row, "row:");
 dbg(col, "col:");
+dbg(Obj, "Obj:");
 
 dbg(send_form[0], "send_form:");
-dbg(send_form[0].name, "send_form.name:");
+
+dbg(send_form[0].parentNode.rowIndex, "parentNode.rowIndex");
+dbg(send_form[0].cellIndex, "cellIndex");
 
 	strName = prompt("番目の名前入力", strName);
 

@@ -7,7 +7,7 @@
 	{% block main %}
 
   <!-- 表 -->            
-	<form action="" method="post" >
+	<form action="{% url 'inputScr' %}" method="post" name="myForm" id="test100" >
 		{% csrf_token %}
 
 	  <table class="table table-bordered">
@@ -26,7 +26,7 @@
 
 	  <!-- 2行目 -->
 		<tr>
-			<td onclick="Click_Name(this, 'name1')" name="name1"></td>
+			<td value="1" onclick="return mySubmit('myForm', 'input', 'POST');"></td>
 			<td onclick="Click_ID(this)"></td>
 			<td onclick="chg_serve_turn(ROW_MEM_1st)">1</td>
 		  {% for loop_id in ""|rjust:"7" %}
@@ -158,16 +158,20 @@ dbg(rowIndex, "rowIndex:");
 //dbg(row, "row:");
 //dbg(col, "col:");
 dbg(Obj, "Obj:");
+dbg(Obj.form, "Obj.form:");
+dbg(Obj.name, "Obj.name:");
+dbg(Obj.id, "Obj.id:");
 
 	send_form[rowIndex].method = "POST";
 dbg(send_form[rowIndex].name, "name:");
 dbg(send_form[rowIndex].method, "method:");
-	send_form[rowIndex].style.visibility = "hidden";
+dbg(send_form[rowIndex].id, "id:");
+	send_form[rowIndex].style.visibility = "visible";
 	document.body.appendChild(send_form[rowIndex]); //画面内に追加
 
 	var fld1 = document.createElement("input");
 	fld1.name = "index";
-	fld1.type = "hidden"; //省略可 or hidden
+	fld1.type = "text"; //省略可 or hidden
 	fld1.value = rowIndex;
 	send_form[rowIndex].appendChild(fld1);
 
@@ -181,10 +185,31 @@ dbg(send_form[rowIndex].method, "method:");
 
 	Obj.textContent = strName;
 
+	send_form.submit();
 
 
 
 }
+
+
+/***********************************************************
+ -----------------------------------------------------------
+ * @brief   
+ * @param   
+ * @return  
+ * @note    
+ -----------------------------------------------------------
+ **********************************************************/
+function mySubmit(formName, url, method)
+ {
+   // サブミットするフォームを取得
+   var f = document.forms[formName];
+ 
+   f.method = method; // method(GET or POST)を設定する
+   f.action = url; // action(遷移先URL)を設定する
+   f.submit(); // submit する
+   return true;
+ }
 
 /***********************************************************
  -----------------------------------------------------------

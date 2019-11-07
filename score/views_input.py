@@ -6,27 +6,30 @@ from .models import TblScore, TblMember
 
 from logging import getLogger		#getLogger("" + str())
 
+import logging
 import json
 import io
 import csv
 
 @login_required(login_url='/admin/login/')
 def inputScr(request):
-    test = User.objects.filter(username=request.user)
-    getLogger("index user:" + str(request.user))
-    getLogger("index is_super:" + str(request.user.is_superuser))
-    getLogger("index test:" + str(test))
-    getLogger("index has_perm:" + str(request.user.has_perm("score.add_tblscore") ))
-#   getLogger("index has_perm:" + str(request.user.has_perm("auth.add_user") ))
-    params = {'authInput': request.user.has_perm("score.add_tblscore"),}
-    return render(request, "score/input_input.html", params)
+	logging.basicConfig(level=logging.DEBUG)
+	test = User.objects.filter(username=request.user)
+	logging.debug("index user:" + str(request.user))
+	getLogger("index user:" + str(request.user))
+	getLogger("index is_super:" + str(request.user.is_superuser))
+	getLogger("index test:" + str(test))
+	getLogger("index has_perm:" + str(request.user.has_perm("score.add_tblscore") ))
+#	getLogger("index has_perm:" + str(request.user.has_perm("auth.add_user") ))
+	params = {'authInput': request.user.has_perm("score.add_tblscore"),}
+	return render(request, "score/input_input.html", params)
 
 """------------------------------------------------------
 ファイル変更
 	csvファイルを出力
 
 Args:
-    request
+	request
 
 Returns:
 	render
@@ -42,7 +45,7 @@ def changeScr(request):
 	とりあえずjsonのみ対応。（いずれはcsvも）
 
 Args:
-    request
+	request
 
 Returns:
 	render
@@ -60,7 +63,7 @@ def importScr(request):
 		if request.method == "POST":
 			# json
 			if "json" in request.FILES["json"].name:
-				if "Score"  in request.FILES["json"].name:
+				if "Score"	in request.FILES["json"].name:
 					getLogger("importScr Score TRUE")
 
 					# スコア → データベース
@@ -75,14 +78,14 @@ def importScr(request):
 															,  playerID=int(scr["ID"]))
 						tblScore.date = scr["date"].replace('/', '-')
 						tblScore.gameNo		= int(scr["gameNo"])
-						tblScore.gamePt     = int(scr["gamePt"])
-						tblScore.playerID   = int(scr["ID"])
-						tblScore.pairID     = int(scr["pairID"])
-						tblScore.row        = int(scr["row"])
-						tblScore.serve1st   = int(scr["serve1st"])
+						tblScore.gamePt		= int(scr["gamePt"])
+						tblScore.playerID	= int(scr["ID"])
+						tblScore.pairID		= int(scr["pairID"])
+						tblScore.row		= int(scr["row"])
+						tblScore.serve1st	= int(scr["serve1st"])
 						if scr["serve2nd"] is not None:
-							tblScore.serve2nd   = int(scr["serve2nd"])
-						tblScore.serveTurn  = int(scr["serveTurn"]-1)
+							tblScore.serve2nd	= int(scr["serve2nd"])
+						tblScore.serveTurn	= int(scr["serveTurn"]-1)
 						# 保存！
 						tblScore.save()
 
@@ -101,10 +104,10 @@ def importScr(request):
 					for mem in json_member["results"]:
 						tblMember, created = TblMember.objects.get_or_create(playerID=int(mem["ID"]))
 						tblMember.playerID		= int(mem["ID"])
-						tblMember.name          = mem["name"]
-						tblMember.dispName      = mem["dispName"]
-						tblMember.inputName1    = mem["nickname1"]
-						tblMember.inputName2    = mem["dispName"]
+						tblMember.name			= mem["name"]
+						tblMember.dispName		= mem["dispName"]
+						tblMember.inputName1	= mem["nickname1"]
+						tblMember.inputName2	= mem["dispName"]
 						# 保存！
 						tblMember.save()
 
@@ -125,7 +128,7 @@ def importScr(request):
 	csvファイルを出力
 
 Args:
-    request
+	request
 
 Returns:
 	render
@@ -140,13 +143,13 @@ def exportScr(request):
 				writer = csv.writer(f)
 				for dt in TblScore.objects.all():
 					writer.writerow(	[ \
-										str(dt.date).replace('-','/')   ,\
-										dt.gameNo                       ,\
-										dt.playerID                     ,\
-										dt.pairID                       ,\
-										dt.serve1st                     ,\
-										dt.serve2nd                     ,\
-										dt.gamePt                       ,\
+										str(dt.date).replace('-','/')	,\
+										dt.gameNo						,\
+										dt.playerID						,\
+										dt.pairID						,\
+										dt.serve1st						,\
+										dt.serve2nd						,\
+										dt.gamePt						,\
 										])
 
 	params ={	'authInput': request.user.has_perm("score.add_tblscore"),}

@@ -245,7 +245,1388 @@ function func_convert_row_into_index(row)
 }
 
 
+/***********************************************************
+ -----------------------------------------------------------
+ * @brief   
+ * @param   
+ * @return  
+ * @note    
+ -----------------------------------------------------------
+ **********************************************************/
+// This is a JavaScript file
+//!//↓本番
+//!var ncmb = new NCMB("bb0194930176053bea3ec03024dc1962234cb96d0b372352234b17e25f525a9e","8960c3d8602554b25f6eb59a117ac883ee26a245eaab5553eecd610eea450ba0");
+//!//↓テスト
+//!//var ncmb = new NCMB("0bd677a6722090bd9ca9d91b4b79712f684f433f933bfaade59908bd41457d7b","c2d990b5e2fc3fdd868d38765117171c992d723af1cd53c7e3641bea5f60ef04");
 
+        // バージョン //
+        const VERSION = "0.79.06.00";
+
+        // ゲーム数、人数 //
+        const GAME_WIN_POINT = 4;
+        const GAME_MAX = (GAME_WIN_POINT*2)-1;
+        const PLAYER_MAX = 4;
+    
+        // 列定義 //
+        const CLM_NAME = 0;
+    	const CLM_ID = 1;
+		const CLM_SERVE = 2;
+		const CLM_GAME_1st = 3;
+		const CLM_SCORE_UP = 10;
+		const CLM_SCORE_DN = 8;
+
+		const CLM_GAME_1st_atGAMeROW = 1;  // ゲーム行の列 //
+
+		// 行定義 //
+		const ROW_TITLE = 0;
+		const ROW_MEM_1st = 1;
+		const ROW_MEM_2nd = 2;
+		const ROW_GAME_UP = 3;
+		const ROW_GAME_DN = 4;
+		const ROW_MEM_3rd = 5;
+		const ROW_MEM_4th = 6;
+		const ROW_NA = 7;		// 該当なし //
+
+		// 色定義 //
+		const COLOR_INVALID_CELL = "#BBB";
+		const COLOR_NORMAL_CELL = "#fff";
+		const COLOR_WARNING_CELL = "#ff8";
+
+		// モード //
+		const INPUT_MODE_NORMAL = 0;
+		const INPUT_MODE_SERVE = 1;
+		var inputMode = INPUT_MODE_NORMAL;
+		
+		// ゲーム数 //
+		var gameResult;
+			const GAME_RESULT_EMPTY = 0;
+			const GAME_RESULT_UP = 1;
+			const GAME_RESULT_DN = 2;
+
+        // メンバーテーブル
+        var gbl_MemberTbl;
+        
+        // 管理テーブル
+        var gbl_manageTbl;
+
+//--------------------------------------------------//
+// バージョン表示　　　　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+document.write( "version = " + VERSION);
+
+//--------------------------------------------------//
+// 初期化処理	　　　　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+
+window.onload = function(){
+
+	init_func();
+	
+
+};
+
+function init_func()
+{
+//!    var Member = ncmb.DataStore("member");
+//!
+//!
+//!
+//!    // 前処理
+//!    change_bkColor();
+//!    gameResult = new Array(GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY);
+//!	fixDate_init();
+//!
+//!    // メンバー情報取得
+//!    Member
+//!		.order("ID")
+//!		.limit(1000)
+//!		.count()
+//!		.fetchAll()
+//!		.then(function(results){
+//!			gbl_MemberTbl = $.extend(true, {}, results);
+//!			document.getElementById("comState").innerHTML="<br>メンバー情報取得";
+//!            get_manageTbl();
+//!		})
+//!		.catch(function(err){
+//!			alert("lnmt_getAsMemberTblFromDtbs err:" + err);
+//!		});
+}
+
+function get_manageTbl()
+{
+    var mngTbl = ncmb.DataStore("TotalManageTbl");
+    
+    mngTbl
+    .order("ID")
+    .limit(1000)
+    .count()
+    .fetchAll()
+    .then(function(rslt){
+        gbl_manageTbl = $.extend(true, {}, rslt);
+        make_gbl_manageTbl(gbl_manageTbl);
+    		document.getElementById("comState").innerHTML="<br>全情報取得";
+    })
+    
+}
+
+//--------------------------------------------------//
+// テーブル作成		　　　　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+function make_gbl_manageTbl(gbl_manageTbl)
+{
+  for(var i=0; i<gbl_manageTbl.count; i++)
+  {
+    var base_str;
+    if(gbl_manageTbl[i].disp.substr(4) == "前期" )
+    { // 前期
+      base_str = gbl_manageTbl[i].disp.substr(0,4) + "_1";
+    }
+    else if(gbl_manageTbl[i].disp.substr(4) == "後期" )
+    {
+      base_str = gbl_manageTbl[i].disp.substr(0,4) + "_2";
+    }
+    else
+    {
+      alert("dispに問題あり");
+    }
+
+	gbl_manageTbl[i].scoreTbl = "Score" + base_str;
+	gbl_manageTbl[i].dailyTbl = "Daily" + base_str;
+	gbl_manageTbl[i].hdcpTbl = "HDCP" + base_str;
+	gbl_manageTbl[i].rankTbl = "Rank" + base_str;
+
+  }
+}
+
+
+
+//--------------------------------------------------//
+// 名前入力		　　　　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+function Click_Name(Obj){
+	var Member = ncmb.DataStore("member");
+	var row = Obj.parentNode.rowIndex;
+	var col = Obj.cellIndex;
+	var strName = Obj.textContent;
+	var personNum = get_person_number(row)+1;
+//			  var subquery1 = Member.equalTo("name", strName);
+////			var subquery2 = Member.equalTo("nickname1", strName);
+////			var subquery3 = Member.equalTo("nickname2", strName);
+//			  var subquery2 = equalTo("nickname1", strName);
+//			  var subquery3 = equalTo("nickname2", strName);
+
+	if(Chk_EnaCell(row, col)==false){
+		return;
+	}
+
+	strName = prompt(personNum + "番目の名前入力", strName);
+
+	if( strName == null ){
+		// キャンセル押下時
+		strName = Obj.textContent;
+	}
+	Obj.textContent = strName;
+	
+    if(chk_strEmpty(strName) == false){
+        var numID = get_IDfromTbl(strName);
+//	  Member  .or(subquery3,subquery2)		//★ or構文
+
+        if(numID!=null){
+            document.getElementById('TBL').rows[row].cells[CLM_ID].textContent = numID;
+            document.getElementById('TBL').rows[row].cells[CLM_NAME].textContent = get_NameFromTbl(numID);
+        }else{
+
+			alert("該当の名前がありません"+err);
+        }
+	}
+	
+}
+
+// 名前入力からIDを取得 （内部テーブルから）
+function get_IDfromTbl(strName){
+    var retID = null;
+    for(var i=0; i<gbl_MemberTbl.count; i++)
+    {
+        if((gbl_MemberTbl[i].dispName == strName) || (gbl_MemberTbl[i].nickname1 == strName))
+        {
+            retID = gbl_MemberTbl[i].ID;
+        }
+    }
+    
+    return retID;
+}
+
+
+
+//--------------------------------------------------//
+// ID入力		　　　　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+
+function Click_ID( Obj ){
+	var Member = ncmb.DataStore("member");
+	var row = Obj.parentNode.rowIndex;
+	var col = Obj.cellIndex;
+	var idNum = Obj.textContent;
+	var personNum = get_person_number(row)+1;
+
+	if(Chk_EnaCell(row, col)==false){
+		return;
+	}
+
+	idNum = prompt(personNum + "番目のID入力",idNum);
+	if( idNum == null ){
+		// キャンセル押下 //
+		idNum = Obj.textContent;
+	}
+	Obj.textContent = idNum;
+    if(chk_strEmpty(idNum) == false){
+        
+        var strName = get_NameFromTbl(+idNum);
+        
+        if(strName!=null){
+            document.getElementById('TBL').rows[row].cells[CLM_NAME].textContent = strName;
+        }else{
+            alert("該当IDがありません");
+        }
+	}
+}
+
+// IDから名前の取得（内部テーブルから）
+function get_NameFromTbl(idNum)
+{
+    var ret = null;
+    for(var i=0; i<gbl_MemberTbl.count; i++)
+    {
+        if(gbl_MemberTbl[i].ID == idNum)
+        {
+            if(gbl_MemberTbl[i].dispName!="")
+            {
+                ret = gbl_MemberTbl[i].dispName;
+            }
+            else
+            {
+                ret = gbl_MemberTbl[i].name;
+            }
+            break;
+        }
+    }
+    return ret;
+}
+// ID枠塗りつぶし ★
+function ID_paint(row){
+	var thisCell = document.getElementById('TBL');
+	if( chk_strEmpty(thisCell.rows[row].cells[CLM_ID].textContent) == false){
+		thisCell.rows[row].cells[CLM_ID].style.backgroundColor = COLOR_NORMAL_CELL;
+	alert("OH_true" + thisCell.rows[row].cells[CLM_ID].textContent)
+	}else{
+		thisCell.rows[row].cells[CLM_ID].backgroundColor = COLOR_WARNING_CELL;
+	alert("OH_false" + thisCell.rows[row].cells[CLM_ID].textContent)
+	}
+}
+
+//--------------------------------------------------//
+// サーブ順 処理　　　　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+// 変数宣言 //
+var serveMode;						// サーブモード //
+	const SERVE_MODE_EMP = 0;		// サーブ順全空白状態 //
+	const SERVE_MODE_FIX_1st = 1;	// 1番目確定状態 //
+// サーブ順変更開始 //
+function click_serve(){
+	if( confirm('サーブの順番を変更しますか？') ){
+		inputMode = INPUT_MODE_SERVE;
+		serveMode = SERVE_MODE_EMP;
+		// サーブエリアクリア //
+		del_serveArea();
+
+
+		// 順番クリア //
+		document.getElementById('TBL').rows[ROW_MEM_1st].cells[CLM_SERVE].textContent = "";
+		document.getElementById('TBL').rows[ROW_MEM_2nd].cells[CLM_SERVE].textContent = "";
+		document.getElementById('TBL').rows[ROW_MEM_3rd].cells[CLM_SERVE].textContent = "";
+		document.getElementById('TBL').rows[ROW_MEM_4th].cells[CLM_SERVE].textContent = "";
+		
+		change_bkColor();	// 背景色変更 //
+		
+	}
+}
+
+// サーブ順変更 //
+function chg_serve_turn(row){
+	if( inputMode == INPUT_MODE_SERVE ){
+		var player1 = document.getElementById('TBL').rows[ROW_MEM_1st].cells[CLM_SERVE];
+		var player2 = document.getElementById('TBL').rows[ROW_MEM_2nd].cells[CLM_SERVE];
+		var player3 = document.getElementById('TBL').rows[ROW_MEM_3rd].cells[CLM_SERVE];
+		var player4 = document.getElementById('TBL').rows[ROW_MEM_4th].cells[CLM_SERVE];
+		if( serveMode == SERVE_MODE_EMP ){
+			// 1番目選択 //
+			document.getElementById('TBL').rows[row].cells[CLM_SERVE].textContent = "1";
+			document.getElementById('TBL').rows[get_pair_row(row)].cells[CLM_SERVE].textContent = "3";
+			serveMode = SERVE_MODE_FIX_1st;
+		}else{
+			// ２番目選択 //
+			if( chk_strEmpty(document.getElementById('TBL').rows[row].cells[CLM_SERVE].textContent) == true){
+				document.getElementById('TBL').rows[row].cells[CLM_SERVE].textContent = "2";
+				document.getElementById('TBL').rows[get_pair_row(row)].cells[CLM_SERVE].textContent = "4";
+				inputMode = INPUT_MODE_NORMAL;
+				// サーブエリア再設定 //
+				for(var i=0; i<GAME_MAX; i++){
+					Chg_ServeResultByGame(i);
+				}
+				change_bkColor();
+				InputFinish();
+			}else{
+				// タップしたところに数字が入っている場合は、１，３を再選択 //
+				document.getElementById('TBL').rows[row].cells[CLM_SERVE].textContent = "1";
+				document.getElementById('TBL').rows[get_pair_row(row)].cells[CLM_SERVE].textContent = "3";
+			}
+		}
+	}
+}
+
+//--------------------------------------------------//
+// ゲーム欄 処理	 　　　　　　　　　　　　　　　 //
+//--------------------------------------------------//
+// タップ時処理 //
+function Click_GameResult(Obj){
+	var row = Obj.parentNode.rowIndex;
+	var col = Obj.cellIndex;
+	var gameNum = col-CLM_GAME_1st_atGAMeROW;
+
+	if(Chk_EnaCell(row, col)==true){
+		if(row == ROW_GAME_UP){ // 上段タップ //
+			if(gameResult[gameNum]==GAME_RESULT_UP){
+				gameResult[gameNum]=GAME_RESULT_EMPTY;
+			}else{
+				gameResult[gameNum]=GAME_RESULT_UP;
+			}
+		}else{	// 下段タップ //
+			if(gameResult[gameNum]==GAME_RESULT_DN){
+				gameResult[gameNum]=GAME_RESULT_EMPTY;
+			}else{
+				gameResult[gameNum]=GAME_RESULT_DN;
+			}
+		}
+		Set_GameCell(gameNum);				// ゲーム欄変更 //
+		Chg_ServeResultByGame(gameNum);		// サーブ欄変更 //
+		InputFinish();						// 入力終了処理 //
+		
+	}
+}
+
+// ゲーム欄更新 //
+function Set_GameCell(gameNum){
+	var col = gameNum + CLM_GAME_1st_atGAMeROW;
+	switch(gameResult[gameNum]){
+		case GAME_RESULT_EMPTY:
+			document.getElementById('TBL').rows[ROW_GAME_UP].cells[col].textContent = "";
+			document.getElementById('TBL').rows[ROW_GAME_DN].cells[col].textContent = "";
+			break;
+		case GAME_RESULT_UP:
+			document.getElementById('TBL').rows[ROW_GAME_UP].cells[col].textContent = "◎";
+			document.getElementById('TBL').rows[ROW_GAME_DN].cells[col].textContent = "";
+			break;
+		case GAME_RESULT_DN:
+			document.getElementById('TBL').rows[ROW_GAME_UP].cells[col].textContent = "";
+			document.getElementById('TBL').rows[ROW_GAME_DN].cells[col].textContent = "◎";
+			break;
+	}
+}
+
+// 入力終了(ゲーム数書き込み) //
+function InputFinish(){
+	if(Chk_InputFinish(true)==true){
+    	document.getElementById('TBL').rows[ROW_MEM_1st].cells[CLM_SCORE_UP].textContent = getGamePt(ROW_MEM_1st);
+		document.getElementById('TBL').rows[ROW_GAME_DN].cells[CLM_SCORE_DN].textContent = getGamePt(ROW_MEM_3rd);
+    }else{
+		document.getElementById('TBL').rows[ROW_MEM_1st].cells[CLM_SCORE_UP].textContent = "";
+		document.getElementById('TBL').rows[ROW_GAME_DN].cells[CLM_SCORE_DN].textContent = "";
+	}
+}
+
+// 入力終了判定 //
+// cellPaint: true 背景色塗りつぶしあり //
+function Chk_InputFinish(cellPaint){
+	var ret;
+
+	if((Get_GameRsltWin(GAME_RESULT_UP)==GAME_WIN_POINT)
+	 ||(Get_GameRsltWin(GAME_RESULT_DN)==GAME_WIN_POINT)){
+		 ret = true;
+	 }else{
+		 ret = false;
+	 }
+
+	if(Chk_GameRsltBrank(cellPaint)==true){		// 空白あり //
+		ret = false;
+	}
+	
+	if(Chk_OverGame(cellPaint)==true){			 // 余剰ゲームあり //
+		ret = false;
+	}
+	
+	return ret;
+}
+
+// ゲーム結果空白チェック //
+// cellPaint: true 空白欄の背景色も塗りつぶす //
+// return: true 空白あり //
+function Chk_GameRsltBrank(cellPaint){
+	var lastGameNum=0;		// 0:全空白 //
+	var ret=false;
+	for(var i=GAME_MAX; i>0; i-- ){
+		if(cellPaint==true){
+			document.getElementById('TBL').rows[ROW_GAME_UP].cells[i-1+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_NORMAL_CELL;
+			document.getElementById('TBL').rows[ROW_GAME_DN].cells[i-1+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_NORMAL_CELL;
+		}
+		if(gameResult[i-1] != GAME_RESULT_EMPTY){
+			lastGameNum=i;
+			break;
+		}
+	}
+	
+	for(var i=0; i<lastGameNum-1; i++){
+		if(gameResult[i]==GAME_RESULT_EMPTY){
+			ret=true;
+			if(cellPaint==true){
+				document.getElementById('TBL').rows[ROW_GAME_UP].cells[i+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_WARNING_CELL;
+				document.getElementById('TBL').rows[ROW_GAME_DN].cells[i+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_WARNING_CELL;
+			}
+		}else{
+			if(cellPaint==true){
+				document.getElementById('TBL').rows[ROW_GAME_UP].cells[i+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_NORMAL_CELL;
+				document.getElementById('TBL').rows[ROW_GAME_DN].cells[i+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_NORMAL_CELL;
+			}
+		}
+	}
+	
+	return ret;
+}
+// ゲーム余剰チェック //
+// cellPaint: true ゲーム余剰欄の背景色も塗りつぶす //
+// return: true ゲーム余剰あり //
+function Chk_OverGame(cellPaint){
+	var win_up_num=0;
+	var win_dn_num=0;
+	var flg_gameEnd = false;	// ゲーム終了フラグ //
+	var ret = false;
+	for(var i=0; i<GAME_MAX; i++){
+		if(gameResult[i]==GAME_RESULT_UP){
+			win_up_num++;
+		}else
+		if(gameResult[i]==GAME_RESULT_DN){
+			win_dn_num++;
+		}
+		
+		if(flg_gameEnd == false){
+			if((win_up_num==GAME_WIN_POINT)||(win_dn_num==GAME_WIN_POINT)){
+				flg_gameEnd=true;
+				if(cellPaint==true){
+					document.getElementById('TBL').rows[ROW_GAME_UP].cells[i+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_NORMAL_CELL;
+					document.getElementById('TBL').rows[ROW_GAME_DN].cells[i+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_NORMAL_CELL;
+				}
+			}
+		}else{
+			if(gameResult[i]!=GAME_RESULT_EMPTY){
+				// ゲーム終了後に空白以外ならワーニング //
+				ret=true;
+				if(cellPaint==true){
+					document.getElementById('TBL').rows[ROW_GAME_UP].cells[i+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_WARNING_CELL;
+					document.getElementById('TBL').rows[ROW_GAME_DN].cells[i+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_WARNING_CELL;
+				}
+			}else{
+				if(cellPaint==true){
+					document.getElementById('TBL').rows[ROW_GAME_UP].cells[i+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_NORMAL_CELL;
+					document.getElementById('TBL').rows[ROW_GAME_DN].cells[i+CLM_GAME_1st_atGAMeROW].style.backgroundColor = COLOR_NORMAL_CELL;
+				}
+			}
+		}
+	}
+	return ret;
+}
+// ゲーム数チェック //
+// UpDn: GAME_RESULT_UP/GAME_RESULT_DN //
+function Get_GameRsltWin(UpDn){
+	var ret=0;
+	for(var i=0; i<GAME_MAX; i++){
+		if(gameResult[i]==UpDn){
+			ret++;
+		}
+	}
+	return ret;
+}
+//--------------------------------------------------//
+// サーブ欄 処理	 　　　　　　　　　　　　　　　 //
+//--------------------------------------------------//
+function Click_ServeResult(Obj){
+	var row = Obj.parentNode.rowIndex;
+	var col = Obj.cellIndex;
+	var gameNum = col-CLM_GAME_1st;
+
+dbg(row, "row:");
+dbg(Obj.cellIndex, "Obj.cellIndex:");
+dbg(CLM_GAME_1st, "CLM_GAME_1st:");
+	
+	if(Chk_EnaCell(row, col)==true){
+		if( (row == ROW_MEM_1st) || (row == ROW_MEM_2nd) ){
+			// 上段タップ //
+			switch(gameResult[gameNum]){
+				case GAME_RESULT_UP:
+					gameResult[gameNum] = GAME_RESULT_DN;
+					break;
+				case GAME_RESULT_DN:
+					gameResult[gameNum] = GAME_RESULT_EMPTY;
+					break;
+				case GAME_RESULT_EMPTY:
+					gameResult[gameNum] = GAME_RESULT_UP;
+					break;
+			}
+		}else{
+			// 下段タップ //
+			switch(gameResult[gameNum]){
+				case GAME_RESULT_UP:
+					gameResult[gameNum] = GAME_RESULT_EMPTY;
+					break;
+				case GAME_RESULT_DN:
+					gameResult[gameNum] = GAME_RESULT_UP;
+					break;
+				case GAME_RESULT_EMPTY:
+					gameResult[gameNum] = GAME_RESULT_DN;
+					break;
+			}
+		}
+	}
+	Set_GameCell(gameNum);				// ゲーム欄変更 //
+	Chg_ServeResultByGame(gameNum);		// サーブ欄変更 //
+	InputFinish();						// 入力終了処理 //
+}
+// ゲーム結果情報からサーブ結果を決定 //
+function Chg_ServeResultByGame(gameNum){
+	var rowEna=Get_rowServeEna(gameNum+CLM_GAME_1st);	  // サーブの有効行 //
+	var gameRslt = gameResult[gameNum];
+	var text;
+
+		if(rowEna!=ROW_NA){
+			if( (rowEna==ROW_MEM_1st)||(rowEna==ROW_MEM_2nd) ){
+				// 上段 //
+				if(gameRslt==GAME_RESULT_EMPTY){
+					text = "";
+				}else
+				if(gameRslt==GAME_RESULT_UP){
+					text = "O";
+				}else{	//gameRslt==GAME_RESULT_DN//
+					text = "X";
+				}
+			}else{	// 下段 //
+				if(gameRslt==GAME_RESULT_EMPTY){
+					text = "";
+				}else
+				if(gameRslt==GAME_RESULT_UP){
+					text = "X";
+				}else{	//gameRslt==GAME_RESULT_DN//
+					text = "O";
+				}
+			}
+			document.getElementById('TBL').rows[rowEna].cells[gameNum+CLM_GAME_1st].textContent = text;
+		}else{
+			text = "";
+			document.getElementById('TBL').rows[ROW_MEM_1st].cells[gameNum+CLM_GAME_1st].textContent = text;
+			document.getElementById('TBL').rows[ROW_MEM_2nd].cells[gameNum+CLM_GAME_1st].textContent = text;
+			document.getElementById('TBL').rows[ROW_MEM_3rd].cells[gameNum+CLM_GAME_1st].textContent = text;
+			document.getElementById('TBL').rows[ROW_MEM_4th].cells[gameNum+CLM_GAME_1st].textContent = text;
+		}
+//	  alert("rowEna="+rowEna+"\ngameRslt="gameRslt+"\ntext="+text);
+
+}
+
+// サーブエリア全削除 //
+function del_serveArea(){
+	const row_serveArea_tbl=[ROW_MEM_1st, ROW_MEM_2nd, ROW_MEM_3rd, ROW_MEM_4th];
+	
+	for( var i=0; i<PLAYER_MAX; i++){
+		for( var gameNum=0; gameNum<GAME_MAX; gameNum++ ){
+			document.getElementById('TBL').rows[row_serveArea_tbl[i]].cells[gameNum+CLM_GAME_1st].textContent = "";
+		}
+	}
+}
+//--------------------------------------------------//
+// チェックボックス 　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+function chkbox_tieBreak(){
+	Chg_ServeResultByGame(GAME_MAX-1);
+	change_bkColor();
+}
+
+//--------------------------------------------------//
+// UPDATEボタン		　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+// 日付データ初期化 //
+function fixDate_init(){
+    var date = new Date();
+    document.FNameDate.txtDate.value=date.getFullYear() + "/" + (1+date.getMonth()) + "/" + date.getDate();
+}
+
+// ボタン押下 //
+function score_update(){
+	var game_No;
+	var date = new Date();
+	var Score = ncmb.DataStore(get_scoreTbl());
+	var strDate = date.getFullYear() + "/" + (1+date.getMonth()) + "/" + date.getDate();
+	var strDate0Pad;		// 0パディングした日付
+	if(Chk_InputFinish(false)==true){
+		if(document.FNameDate.txtDate.value != ""){
+			strDate = document.FNameDate.txtDate.value;
+		}
+		strDate = prompt("日付はこちらでよろしいですか？",strDate);
+		if(strDate != null){	// キャンセル押下でなければ //
+			if(chkDate(strDate)==true){	// 日付チェック
+                if(chk_input_update() == true)
+                {
+            
+    				document.FNameDate.txtDate.value = strDate;
+    				strDate0Pad = setDate0Pad(strDate);				// 日付0パディング
+    				Score	.equalTo("date", strDate0Pad)
+    						.order("gameNo", true)
+                        	.count()
+                    		.limit(1000)
+    						.fetchAll()
+    						.then(function(results){
+    							game_No = get_empty_num(results);
+    
+                                save_data(ROW_MEM_1st, strDate0Pad, game_No, Score);
+//    							save_data(ROW_MEM_2nd, strDate0Pad, game_No, Score);
+//    							save_data(ROW_MEM_3rd, strDate0Pad, game_No, Score);
+//    							save_data(ROW_MEM_4th, strDate0Pad, game_No, Score);
+//    							alert("保存成功です。 gameNo = " + game_No);
+//    	                        if( confirm("全削除しますか？") ){
+//    	                            all_clear();
+//    	                        }
+    						})
+    						.catch(function(err){
+    							alert("score入力失敗"+err);
+    						});
+                }
+			}else{
+				alert("日付に間違いがあります。(半角で入力お願いします)");
+			}
+		}
+	}
+	
+}
+		
+// 書き込みscoreTbl取得
+function get_scoreTbl()
+{
+    var ret;
+    ret = gbl_manageTbl[0].outputScore;
+    if(ret=="" || ret==null)
+    {
+        ret = gbl_manageTbl[0].scoreTbl;
+    }
+    return ret;
+}
+
+
+// データ保存 //
+function save_data( row, strDate, game_No, Score ){
+	var score = new Score();
+
+    backUp_prvDt(game_No,strDate,row);				// 前回データ用に保存
+
+	score.set("date", strDate)
+		.set("gameNo", game_No)
+		.set("ID", get_ID(row))
+		.set("pairID", get_pairID(row))
+		.set("serve1st", get_serve1st(row))
+		.set("serve2nd", get_serve2nd(row))
+		.set("gamePt", getGamePt(row))
+        .set("serveTurn", getServeTurn(row))
+        .set("row", get_person_number(row))
+		.save()
+		.then(function(object){
+			row = get_next_personRow(row);
+			if(row!=ROW_NA)
+			{
+				save_data(row, strDate, game_No, Score);
+			}
+			else
+			{
+				alert("保存成功です。 gameNo = " + game_No);
+				if( confirm("全削除しますか？") ){
+				    all_clear();
+				}
+			}
+		
+		
+		
+			//成功する時の処理
+			
+			//$("#message").html("<p>データ保存に成功!</p>");
+		})
+		.catch(function(error) {
+			//エラーが発生する時の処理
+	alert("保存error:" + error.message)
+//			  $("#message").html("error:" + error.message);			 
+
+		});
+
+}
+
+// 次の人の行取得
+function get_next_personRow(row)
+{
+	var ret;
+	
+	switch(row)
+	{
+		case ROW_MEM_1st:
+			ret = ROW_MEM_2nd;
+			break;
+		case ROW_MEM_2nd:
+			ret = ROW_MEM_3rd;
+			break;
+		case ROW_MEM_3rd:
+			ret = ROW_MEM_4th;
+			break;
+		case ROW_MEM_4th:
+			ret = ROW_NA;
+			break;
+		default:
+			alert("get_next_personRow異常 row:" + row);
+			break;
+	}
+	
+	return ret;
+}
+
+
+
+// 空き番号取得
+function get_empty_num(rslt)
+{
+    var ret=1;
+    var flg_find_empty = false;
+    
+    while((ret <=rslt.length)&&(flg_find_empty==false))
+    {
+        if(chk_empty_exist(rslt, ret)==true)
+        {   // 空き番号発見
+            break;
+        }
+        ret++;
+    }
+    return ret;
+}
+
+// 空き番号チェック
+function chk_empty_exist(rslt, num)
+{
+    var ret = true;
+    for(var i=0; i<rslt.count; i++)
+    {
+        if(rslt[i].gameNo == num)
+        {
+            ret = false;
+            break;
+        }
+    }
+    return ret;
+}
+
+
+// ID取得 //
+function get_ID(row){
+	return +(document.getElementById('TBL').rows[row].cells[CLM_ID].textContent);
+}
+
+// 名前取得 //
+function get_name(row){
+    return document.getElementById('TBL').rows[row].cells[CLM_NAME].textContent;
+}
+
+// ペア取得 //
+function get_pairID(row){
+	return +(get_ID(get_pair_row(row)));
+}
+
+// 1stサーブキープ取得 //
+function get_serve1st(row){
+	var col;
+	for(col=CLM_GAME_1st; col<(CLM_GAME_1st+4); col++){
+		switch (document.getElementById('TBL').rows[row].cells[col].textContent){
+			case "O":
+				return (1);
+			case "X":
+				return (0);
+			case "":
+				break;
+			default:
+				alert("サーブキープ1st異常");
+				break;
+		}
+	}
+	alert("サーブキープ1st未入力？");
+	return null;
+}
+
+// 2ndサーブキープ取得 //
+function get_serve2nd(row){
+	var col;
+	for(col=(CLM_GAME_1st+4); col<(CLM_GAME_1st+7); col++){
+		switch (document.getElementById('TBL').rows[row].cells[col].textContent){
+			case "O":
+				return (1);
+			case "X":
+				return (0);
+			case "":
+				break;
+			default:
+				alert("サーブキープ2nd異常");
+				break;
+		}
+	}
+	return null;
+}
+
+// ゲームポイント取得 //
+function getGamePt(row){
+	var ret=0;
+	switch(row){
+		case ROW_MEM_1st:
+		case ROW_MEM_2nd:
+			ret = Get_GameRsltWin(GAME_RESULT_UP);
+			break;
+		case ROW_MEM_3rd:
+		case ROW_MEM_4th:
+			ret = Get_GameRsltWin(GAME_RESULT_DN);
+			break;
+		default:
+			alert("ゲームポイント異常");
+			break;
+	}
+	
+	if(ret==GAME_WIN_POINT){
+		ret++;
+	}
+	
+	return ret;
+}
+
+// 日付チェック //
+function chkDate(strDate){
+	var ret = true;
+	var staPos = 0;
+	var endPos = 0;
+	var tempStr;
+	
+	// 年チェック
+	endPos = strDate.indexOf("/",staPos)
+	if(endPos == 4){
+		tempStr=strDate.slice(staPos, endPos);
+		if(chkNum(tempStr)==false){
+			ret = false;
+		}
+	}else{
+		ret = false;
+	}
+	
+	// 月チェック
+	staPos = endPos+1;
+	endPos = strDate.indexOf("/",staPos);
+	if(endPos!=-1){
+		tempStr=strDate.slice(staPos, endPos)
+		if((chkNum(tempStr)==false)
+		||((Number(tempStr)<1)||(Number(tempStr)>12))){
+			ret = false;
+		}
+	}else{	// "/"がなければ
+		ret = false;
+	}
+	
+	// 日チェック
+	staPos = endPos+1;
+	tempStr=strDate.slice(staPos);
+	if((chkNum(tempStr)==false)
+	||((Number(tempStr)<1)||(Number(tempStr)>31))){
+		ret = false;
+	}
+
+	
+	return ret;
+}
+
+// 入力チェック //
+function chk_input_update()
+{
+    var ret = false;
+    
+    if(chkId() != true)
+    {
+        alert("idに間違いがあります");
+    }
+    else
+    if(chk_double_Id() != true)
+    {
+        alert("idが重複しています");
+    }
+    else
+    {
+        ret = true;
+    }
+    
+    return ret;
+}
+
+// ID重複チェック //
+function chk_double_Id()
+{
+    var ret = true;
+    var id_1st = get_ID(ROW_MEM_1st)
+    var id_2nd = get_ID(ROW_MEM_2nd)
+    var id_3rd = get_ID(ROW_MEM_3rd)
+    var id_4th = get_ID(ROW_MEM_4th)
+
+    if((id_1st == id_2nd)
+     ||(id_1st == id_3rd)
+     ||(id_1st == id_4th)
+     ||(id_2nd == id_3rd)
+     ||(id_2nd == id_4th)
+     ||(id_3rd == id_4th))
+     {
+         ret = false;
+     }
+
+    return ret;
+}
+
+// IDチェック //
+function chkId()
+{
+    var ret = false;
+
+    if((get_ID(ROW_MEM_1st)!=0)
+     &&(get_ID(ROW_MEM_2nd)!=0)
+     &&(get_ID(ROW_MEM_3rd)!=0)
+     &&(get_ID(ROW_MEM_4th)!=0)
+     )
+    {
+        ret = true; 
+    }
+    
+    return ret;
+    
+}
+
+
+// 数値チェック //
+function chkNum(str){
+    
+	var ret = true;
+	if(str.match(/[^0-9]+/)){
+		ret = false;
+	}
+	return ret;
+}
+
+// 日付0パディング //
+// 日付チェック完了が前提 //
+function setDate0Pad(strDate){
+	var retStr;
+	var staPos = 0;
+	var endPos = 0;
+	var tempStr;
+	
+	// 年抽出
+	endPos = strDate.indexOf("/",staPos)+1;
+	retStr = strDate.slice(staPos, endPos);
+	
+	// 月 0パディング
+	staPos = endPos;
+	endPos = strDate.indexOf("/",staPos);
+	tempStr = strDate.slice(staPos, endPos);
+	retStr = retStr + ("00"+tempStr).slice(-2) + "/";
+	
+	// 日 0パディング
+	staPos = endPos+1;
+	tempStr = strDate.slice(staPos);
+	retStr = retStr + ("00"+tempStr).slice(-2);
+
+	return retStr;
+}
+
+
+
+function getServeTurn(row){
+    return +(document.getElementById('TBL').rows[row].cells[CLM_SERVE].textContent);
+}
+
+//--------------------------------------------------//
+// SCORE CLEAR　　　　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+function score_clear(){
+	var gameNum;
+
+    // ゲーム欄クリア
+	for(gameNum=0; gameNum<GAME_MAX; gameNum++){
+		gameResult[gameNum]=GAME_RESULT_EMPTY;
+		Set_GameCell(gameNum);				// ゲーム欄変更 //
+	}
+
+    // サーブエリアクリア //
+	del_serveArea();
+
+	InputFinish();						// 入力終了処理 //
+}
+
+//--------------------------------------------------//
+// 前回データ 　　　　　　　　　　　　　　　　      //
+//--------------------------------------------------//
+    // previous data //
+    var prv_gameNo;
+    var prv_strDate;
+    var prv_name　= ["","","",""];
+    var prv_GamePt = [0,0,0,0];
+
+// 前回データ表示 //
+function get_prv_data(){
+    if(prv_gameNo == null){
+        alert("前回入力データはありません");    
+    }else{
+    	alert("前回のgameNo = "+prv_gameNo 
+            + "\n前回の日付 = " + prv_strDate
+            + "\n上段ゲーム数 = " + prv_GamePt[0] + " |" +  prv_name[0] + "さん," + prv_name[1] +"さん"           //上段側のゲーム、名前
+            + "\n下段ゲーム数 = " + prv_GamePt[2] + " |" +  prv_name[2] + "さん," + prv_name[3] +"さん"           //上段側のゲーム、名前
+            );
+    }
+    
+}
+
+// 前回データ用に保存 //
+function backUp_prvDt(game_No,strDate,row){
+    var ptr = get_person_number(row);
+
+    prv_gameNo = game_No;
+    prv_strDate = strDate;
+    prv_name[ptr] = get_name(row);
+    prv_GamePt[ptr] = getGamePt(row);
+}
+
+
+
+//--------------------------------------------------//
+// ALL CLEAR　　　　　　　　　　　　　　　　　      //
+//--------------------------------------------------//
+function all_clear(){
+
+    if(inputMode != INPUT_MODE_SERVE){
+        // 名前クリア //
+        document.getElementById('TBL').rows[ROW_MEM_1st].cells[CLM_NAME].textContent = "";
+        document.getElementById('TBL').rows[ROW_MEM_2nd].cells[CLM_NAME].textContent = "";
+        document.getElementById('TBL').rows[ROW_MEM_3rd].cells[CLM_NAME].textContent = "";
+        document.getElementById('TBL').rows[ROW_MEM_4th].cells[CLM_NAME].textContent = "";
+    
+        // クリア //
+        document.getElementById('TBL').rows[ROW_MEM_1st].cells[CLM_ID].textContent = ""
+        document.getElementById('TBL').rows[ROW_MEM_2nd].cells[CLM_ID].textContent = ""
+        document.getElementById('TBL').rows[ROW_MEM_3rd].cells[CLM_ID].textContent = ""
+        document.getElementById('TBL').rows[ROW_MEM_4th].cells[CLM_ID].textContent = ""
+        
+        // 順番セット //
+    	document.getElementById('TBL').rows[ROW_MEM_1st].cells[CLM_SERVE].textContent = "1";
+    	document.getElementById('TBL').rows[ROW_MEM_2nd].cells[CLM_SERVE].textContent = "3";
+    	document.getElementById('TBL').rows[ROW_MEM_3rd].cells[CLM_SERVE].textContent = "2";
+    	document.getElementById('TBL').rows[ROW_MEM_4th].cells[CLM_SERVE].textContent = "4";
+    
+        score_clear();
+        
+        document.chbox.tieBreak.checked=false;
+    
+    	change_bkColor();
+    }
+    
+}
+//--------------------------------------------------//
+// CSV create 　　　　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+function csv_create(){
+	alert("CSV");
+}
+//--------------------------------------------------//
+// その他 処理　　　　　　　　　　　　　　　　　	//
+//--------------------------------------------------//
+// 背景色変更 //
+function change_bkColor(){
+	var scoreTbl = document.getElementById('TBL');
+	for( var i=ROW_MEM_1st; i<scoreTbl.rows.length; i++ ){
+		for( var j=0; j<scoreTbl.rows[i].cells.length; j++ ){
+			var Cells=scoreTbl.rows[i].cells[j];
+			if(Chk_EnaCell(i,j)==false){
+				Cells.style.backgroundColor = COLOR_INVALID_CELL;
+			}else{
+				Cells.style.backgroundColor = COLOR_NORMAL_CELL;
+			}
+		}
+	}
+}
+
+// セル 有効・無効判定 //
+function Chk_EnaCell(row, col){
+	var ret = true;
+	
+	if(inputMode == INPUT_MODE_SERVE){	// サーバ入力モードなら //
+		if(chk_serve_turn_cell(row, col) == true ){
+			// サーブ順のセルなら //
+			ret = true;
+		}else{
+			ret = false;
+		}
+	}else{	// 通常モードなら //
+		if( chk_serve_rslt_cell(row, col) == true ){
+			if(((document.getElementById('TBL').rows[row].cells[CLM_SERVE].textContent-1) == ((col-CLM_GAME_1st)%4))	// サーブ順とゲームが一致している //
+			 &&((col!=(CLM_GAME_1st+GAME_MAX-1))||(document.chbox.tieBreak.checked==false))		// タイブレが選択されていない //
+			 ){
+				ret = true;
+			}else{
+				ret = false;
+			}
+		}
+	}
+	
+	return ret;
+}
+
+// 列で有効となっているサーブの行の取得 //
+function Get_rowServeEna(col){
+	var ret;
+	if( Chk_EnaCell(ROW_MEM_1st, col)==true ){
+		ret = ROW_MEM_1st;
+	}else
+	if( Chk_EnaCell(ROW_MEM_2nd, col)==true ){
+		ret = ROW_MEM_2nd;
+	}else
+	if( Chk_EnaCell(ROW_MEM_3rd, col)==true ){
+		ret = ROW_MEM_3rd;
+	}else
+	if( Chk_EnaCell(ROW_MEM_4th, col)==true ){
+		ret = ROW_MEM_4th;
+	}else{
+		ret = ROW_NA;	// 該当なし //
+	}
+	
+	return ret;
+}
+
+
+// サーブ順のセル判定 //
+function chk_serve_turn_cell(row, col){
+	if((col == CLM_SERVE) && ((row == ROW_MEM_1st)||(row == ROW_MEM_2nd)||(row == ROW_MEM_3rd)||(row == ROW_MEM_4th))){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+// サーブ結果のセル判定 //
+function chk_serve_rslt_cell(row, col){
+	if(((col >= CLM_GAME_1st)&&(col < (CLM_GAME_1st+GAME_MAX))) 
+	&& ((row == ROW_MEM_1st)||(row == ROW_MEM_2nd)||(row == ROW_MEM_3rd)||(row == ROW_MEM_4th))){
+		return true;
+	}else{
+		return false;
+	}
+	
+}
+
+
+// ペアの行取得 //
+function get_pair_row(row){
+	var ret;
+	switch(row){
+		case ROW_MEM_1st:
+			ret = ROW_MEM_2nd;
+			break;
+		case ROW_MEM_2nd:
+			ret = ROW_MEM_1st;
+			break;
+		case ROW_MEM_3rd:
+			ret = ROW_MEM_4th;
+			break;
+		case ROW_MEM_4th:
+			ret = ROW_MEM_3rd;
+			break;
+			
+	}
+	return ret;
+}
+
+// 文字列がnullならtrueを返す //
+function chk_strEmpty( str ){
+    var ret = false;
+    if((str == "")||(str == null)){
+        ret = true;
+    }
+    
+    return ret;
+}
+
+// 行情報から何番目の人かを返す 0～3 //
+function get_person_number(row){
+	var ret;
+	switch(row){
+		case ROW_MEM_1st:
+			ret = 0;
+			break;
+		case ROW_MEM_2nd:
+			ret = 1;
+			break;
+		case ROW_MEM_3rd:
+			ret = 2;
+			break;
+		case ROW_MEM_4th:
+			ret = 3;
+			break;
+		default:
+			ret = 0;
+			alert("関数get_person_number()異常 row:" + row );
+			break;
+	}
+	return ret;
+}
+
+// ゲスト追加
+function add_guest()
+{
+    var id = get_empty_id();
+    var name = "";
+    var dispName = "";
+    var nickname1 = "";
+    var ret;
+//    strName = prompt(personNum + "番目の名前入力", strName);
+
+    id = prompt("ID入力", id);
+    while(chk_empty_id(id)==false && id != null)
+    {
+        id = prompt("IDが既に存在するか無効な名前です\n再度入力してください", get_empty_id());
+    }
+    name = prompt("名前（フルネーム）", name);
+    dispName = prompt("表示名", dispName);
+    while(chk_DispName(dispName)==false && dispName != null)
+    {
+        dispName = prompt("表示名が既に存在するか無効な名前です\n再度入力してください", dispName);
+    }
+    nickname1 = prompt("ひらがな（又は短縮名）", nickname1);
+    while(chk_nickname(nickname1)==false && nickname1 != null)
+    {
+        nickname1 = prompt("既に存在するか無効な名前です\n再度入力してください", nickname1);
+    }
+    ret = confirm("下記でよろしいですか？\nID:"+id+"\n名前:"+name+"\n表示名:"+dispName+"\nひらがな:"+nickname1);
+    if(ret == true)
+    {
+        var Member = ncmb.DataStore("member");
+        
+        save_newMember(id, name, dispName, nickname1, Member);
+        
+    }
+}
+
+// 新メンバーデータベース保存
+function save_newMember(id, name, dispName, nickname1, Member)
+{
+        var member = new Member();
+        member
+            .set("name",name)
+            .set("ID",+id)
+            .set("dispName", dispName)
+            .set("nickname1", nickname1)
+            .save()
+            .then(function(obj){
+            	init_func();
+                alert("登録成功");
+            })
+            .catch(function(err){
+                alert("ng");
+                alert("保存error:" + err.message)
+            })
+
+}
+
+// 空きID取得
+function get_empty_id()
+{
+    var retID = 300;
+ 
+    while(1)
+    {
+        if(chk_empty_id(retID)==true)
+        {
+            break;
+        }
+        retID++;
+    }
+    return retID;
+}
+
+// IDがメンバテーブルに存在しないかチェック
+function chk_empty_id(id)
+{
+    var ret = true;
+    
+    for(var i=0; i<gbl_MemberTbl.count; i++)
+    {
+        if(id == gbl_MemberTbl[i].ID)
+        {
+            ret = false;
+            break;
+        }
+    }
+    return ret;
+}
+
+// 表示名有効かチェック
+function chk_DispName(dispName)
+{
+    var ret = true;
+    
+    if(dispName == "")
+    {
+        ret = false;
+    }
+    else
+    {
+        for(var i=0; i<gbl_MemberTbl.count; i++)
+        {
+            if(dispName == gbl_MemberTbl[i].dispName)
+            {
+                ret = false;
+                break;
+            }
+        }
+    }
+    return ret;
+}
+
+// ひらがな有効かチェック
+function chk_nickname(nickname)
+{
+    var ret = true;
+    
+    if(nickname == "")
+    {
+        ret = false;
+    }
+    else
+    {
+        for(var i=0; i<gbl_MemberTbl.count; i++)
+        {
+            if(nickname == gbl_MemberTbl[i].nickname1)
+            {
+                ret = false;
+                break;
+            }
+        }
+    }
+    return ret;
+    
+}
 
 
 </script>

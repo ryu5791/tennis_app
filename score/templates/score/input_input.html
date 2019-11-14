@@ -10,14 +10,14 @@
 	<form action="{% url 'inputScr' %}" method="post" name="myForm" id="test100" >
 		{% csrf_token %}
 
-	  <table class="table table-bordered">
+	  <table class="table table-bordered" id="TBL">
 	  <tbody>
 	  
 	  <!-- 1行目 -->
 	  <tr>
 		  <th class="col-2">name</th>
 		  <th class="col-1">ID</th>
-		  <th class="col-1" style="background-color:#fff;" onclick="click_matrix(this)">serve</th>
+		  <th class="col-1" style="background-color:#fff;" onclick="click_serve()">serve</th>
 		  {% for loop_id in ""|rjust:"7" %}
 		  <th class="col-1">{{forloop.counter}}</th>
 			{% endfor %}
@@ -47,7 +47,7 @@
 		<tr>
 			<td onclick="Click_Name(this, 'name1')" name="name1"></td>
 			<td onclick="Click_ID(this)"></td>
-			<td onclick="chg_serve_turn(ROW_MEM_1st)">3</td>
+			<td onclick="chg_serve_turn(ROW_MEM_2nd)">3</td>
 		  {% for loop_id in ""|rjust:"7" %}
 		  <td onclick="Click_ServeResult(this)">
 			{% endfor %}
@@ -61,7 +61,7 @@
 	  <tr>
 	  <td colspan="3">ゲーム {{cnt}}</td>
 		  {% for loop_id in ""|rjust:"7" %}
-	      <td onclick="Click_ServeResult(this)">
+	      <td onclick="Click_GameResult(this)">
 	      {{gamecnt.0}}
 	      </td>
 	    {% endfor %}
@@ -71,7 +71,7 @@
 	  <tr>
 	  <td colspan="3">ゲーム {{cnt}}</td>
 		  {% for loop_id in ""|rjust:"7" %}
-	      <td onclick="Click_ServeResult(this)">
+	      <td onclick="Click_GameResult(this)">
 	      {{gamecnt.1}}
 	      </td>
 	    {% endfor %}
@@ -82,7 +82,7 @@
 		<tr>
 			<td onclick="Click_Name(this, 'name1')" name="name1"></td>
 			<td onclick="Click_ID(this)"></td>
-			<td onclick="chg_serve_turn(ROW_MEM_1st)">2</td>
+			<td onclick="chg_serve_turn(ROW_MEM_3rd)">2</td>
 		  {% for loop_id in ""|rjust:"7" %}
 		  <td onclick="Click_ServeResult(this)">
 			{% endfor %}
@@ -92,7 +92,7 @@
 		<tr>
 			<td onclick="Click_Name(this, 'name1')" name="name1"></td>
 			<td onclick="Click_ID(this)"></td>
-			<td onclick="chg_serve_turn(ROW_MEM_1st)">4</td>
+			<td onclick="chg_serve_turn(ROW_MEM_4th)">4</td>
 		  {% for loop_id in ""|rjust:"7" %}
 		  <td onclick="Click_ServeResult(this)">
 			{% endfor %}
@@ -101,6 +101,11 @@
 	  </tbody>
 	  </table>
 	</form>
+    <form name="chbox">
+        <div>
+            <input id="tieBreak" type="checkbox" onclick="chkbox_tieBreak()" >タイブレーク<br>
+        </div>
+    </form>
 
 	{% endblock %}
 
@@ -332,8 +337,8 @@ function init_func()
 //!
 //!
 //!    // 前処理
-//!    change_bkColor();
-//!    gameResult = new Array(GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY);
+    change_bkColor();
+    gameResult = new Array(GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY,GAME_RESULT_EMPTY);
 //!	fixDate_init();
 //!
 //!    // メンバー情報取得

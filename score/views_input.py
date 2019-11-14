@@ -21,6 +21,13 @@ def inputScr(request):
 	getLogger("index test:" + str(test))
 	getLogger("index has_perm:" + str(request.user.has_perm("score.add_tblscore") ))
 #	getLogger("index has_perm:" + str(request.user.has_perm("auth.add_user") ))
+
+	if( request.method == "GET" ):
+		logging.debug("get:")
+	
+	if( request.method == "POST" ):
+		logging.debug("post:")
+
 	params = {'authInput': request.user.has_perm("score.add_tblscore"),}
 	return render(request, "score/input_input.html", params)
 

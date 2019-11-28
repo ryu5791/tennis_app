@@ -52,7 +52,7 @@ class TblRank(models.Model):
 	gamePt      = models.FloatField()
 	gross       = models.FloatField()
 	HDCP        = models.FloatField()
-	playerID    = models.ForeignKey(TblMember, on_delete=models.PROTECT)
+	playerID    = models.PositiveIntegerField()
 	net         = models.FloatField()
 	winNum      = models.PositiveIntegerField()
 

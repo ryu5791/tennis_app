@@ -7,7 +7,7 @@ python manage.py migrate
 ●やること
 
 
-
+・memberのID増やす
 
 
 

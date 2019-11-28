@@ -5,5 +5,26 @@
 	{% endblock %}
 
 	{% block main %}
-	test1
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>NAME</th>
+            <th>playerID</th>
+            <th>gameNum</th>
+            <th>gross</th>
+            <th>winNum</th>
+        </tr>
+
+    {% for rankDt in rankTbl %}
+        <tr>
+            <td>{{rankDt.id}}				</td>
+            <td>{{rankDt.name}}			</td>
+            <td>{{rankDt.playerID}}	</td>
+            <td>{{rankDt.gross}}		</td>
+            <td>{{rankDt.gameNum}}	</td>
+            <td>{{rankDt.winNum}}		</td>
+        </tr>
+    {% endfor %}
+
+    </table>
 	{% endblock %}

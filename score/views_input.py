@@ -16,10 +16,10 @@ def inputScr(request):
 	logging.basicConfig(level=logging.DEBUG)
 	test = User.objects.filter(username=request.user)
 	logging.debug("index user:" + str(request.user))
-	getLogger("index user:" + str(request.user))
-	getLogger("index is_super:" + str(request.user.is_superuser))
-	getLogger("index test:" + str(test))
-	getLogger("index has_perm:" + str(request.user.has_perm("score.add_tblscore") ))
+#	getLogger("index user:" + str(request.user))
+#	getLogger("index is_super:" + str(request.user.is_superuser))
+#	getLogger("index test:" + str(test))
+#	getLogger("index has_perm:" + str(request.user.has_perm("score.add_tblscore") ))
 #	getLogger("index has_perm:" + str(request.user.has_perm("auth.add_user") ))
 
 	if( request.method == "GET" ):

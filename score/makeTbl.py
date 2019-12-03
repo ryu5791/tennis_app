@@ -41,12 +41,13 @@ class ManageRank():
 			tRank.net         = tRank.gross + tRank.HDCP
 			tRank.winNum      = winNum
 			tRank.save()
+
+			logging.debug("tRank.name:" + str(tRank.name))
 			
 		return TblRank.objects.all()
 
 
 def get_nameFromId(playerID, tMember):
-	logging.debug("playerID:" + str(playerID))
 	for mem in tMember:
 		if playerID == mem.playerID:
 			ret = mem.name

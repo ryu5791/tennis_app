@@ -55,6 +55,7 @@ class TblRank(models.Model):
 	playerID    = models.PositiveIntegerField()
 	net         = models.FloatField()
 	winNum      = models.PositiveIntegerField()
+	name        = models.CharField(default="", blank=True, max_length=20)
 
 class TblPeriodData(models.Model):
 	tblID		= models.ForeignKey(TblManage, on_delete=models.CASCADE)

@@ -7,7 +7,6 @@
 	{% block main %}
     <table>
         <tr>
-            <th>ID</th>
             <th>NAME</th>
             <th>playerID</th>
             <th>gameNum</th>
@@ -17,11 +16,10 @@
 
     {% for rankDt in rankTbl %}
         <tr>
-            <td>{{rankDt.id}}				</td>
             <td>{{rankDt.name}}			</td>
             <td>{{rankDt.playerID}}	</td>
-            <td>{{rankDt.gross}}		</td>
             <td>{{rankDt.gameNum}}	</td>
+            <td>{{rankDt.gross}}		</td>
             <td>{{rankDt.winNum}}		</td>
         </tr>
     {% endfor %}
